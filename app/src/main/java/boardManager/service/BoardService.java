@@ -1,11 +1,12 @@
-package boardmanager.service;
+package boardManager.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import boardmanager.persistence.dao.BoardColumnDao;
-import boardmanager.persistence.dao.BoardDao;
-import boardmanager.persistence.entity.BoardColumnEntity;
-import boardmanager.persistence.entity.BoardEntity;
+
+import boardManager.persistence.dao.BoardColumnDao;
+import boardManager.persistence.dao.BoardDAO;
+import boardManager.persistence.entity.BoardColumnEntity;
+import boardManager.persistence.entity.BoardEntity;
 
 public class BoardService {
     private final Connection connection;
