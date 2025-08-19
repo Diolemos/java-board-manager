@@ -1,23 +1,8 @@
-# Gradle
-.gradle/
-build/
-
-# IntelliJ IDEA
-*.iml
-.idea/
-out/
-
-# VSCode
-.vscode/
-
-# MacOS
-.DS_Store
-
-# Logs
+/build/
+/out/
+/.gradle/
+/.idea/
+/*.iml
+*.class
 *.log
-
-# Lombok-generated files (optional)
-lombok.config
-
-# Liquibase
-liquibase/changelog/*.lock
+.DS_Store
