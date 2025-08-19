@@ -8,11 +8,16 @@ repositories {
 }
 
 dependencies {
-   // Lombok for boilerplate reduction
-    compileOnly 'org.projectlombok:lombok:1.8.24'
-    annotationProcessor 'org.projectlombok:lombok:1.8.24'
-    // MySQL connector
-    implementation 'mysql:mysql-connector-java:8.1.0'
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    
+    testCompileOnly 'org.projectlombok:lombok:1.18.38'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+
+   // Database
+    implementation "mysql:mysql-connector-java:8.0.33"
+
 
     // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
