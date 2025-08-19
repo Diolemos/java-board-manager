@@ -8,5 +8,5 @@ public class BoardColumnEntity {
     private String name;
     private int order;
     private BoardColumnKindEnum kind;
-    private BoardEntity board; 
+    private BoardEntity board; // Lombok will generate getBoard() and setBoard()
 }
