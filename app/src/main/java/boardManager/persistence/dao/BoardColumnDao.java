@@ -6,14 +6,12 @@ import java.util.List;
 
 import boardManager.persistence.entity.BoardColumnEntity;
 import boardManager.persistence.entity.BoardColumnKindEnum;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class BoardColumnDao {
 
     private final Connection connection;
-
-    public BoardColumnDao(Connection connection) {
-        this.connection = connection;
-    }
 
     public BoardColumnEntity insert(BoardColumnEntity entity) throws SQLException {
         String sql = "INSERT INTO BOARDS_COLUMNS (name, `order`, kind, board_id) VALUES (?, ?, ?, ?)";
