@@ -1,0 +1,10 @@
+<changeSet id="001" author="Pedro">
+    <createTable tableName="BOARDS">
+        <column name="id" type="BIGINT" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="name" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+</changeSet>

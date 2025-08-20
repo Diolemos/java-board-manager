@@ -1,5 +1,4 @@
 plugins {
-    id 'java'
     id 'application'
 }
 
@@ -8,19 +7,21 @@ repositories {
 }
 
 dependencies {
-    // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.38'
-    annotationProcessor 'org.projectlombok:lombok:1.18.38'
-    
-    testCompileOnly 'org.projectlombok:lombok:1.18.38'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
-
-   // Database
+    // Database
     implementation "mysql:mysql-connector-java:8.0.33"
 
+    // Liquibase
+    implementation "org.liquibase:liquibase-core:4.29.1"
 
-    // JUnit
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    // Lombok (compile-time only)
+  compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    testCompileOnly 'org.projectlombok:lombok:1.18.38'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+    // Test
+    testImplementation 'junit:junit:4.13.2'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+runtimeOnly 'ch.qos.logback:logback-classic:1.4.11'
 }
 
 java {
@@ -30,9 +31,9 @@ java {
 }
 
 application {
-    mainClass = 'boardManager.App'
+    mainClass = 'org.example.App'
 }
 
-tasks.named('test') {
+tasks.test {
     useJUnitPlatform()
 }

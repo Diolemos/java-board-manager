@@ -1,0 +1,19 @@
+<changeSet id="002" author="Pedro">
+    <createTable tableName="BOARDS_COLUMNS">
+        <column name="id" type="BIGINT" autoIncrement="true">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="name" type="VARCHAR(255)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="order" type="INT">
+            <constraints nullable="false"/>
+        </column>
+        <column name="kind" type="VARCHAR(20)">
+            <constraints nullable="false"/>
+        </column>
+        <column name="board_id" type="BIGINT">
+            <constraints nullable="false" foreignKeyName="fk_board_columns_board" references="BOARDS(id)"/>
+        </column>
+    </createTable>
+</changeSet>
