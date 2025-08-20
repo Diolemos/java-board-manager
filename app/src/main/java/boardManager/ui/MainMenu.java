@@ -25,9 +25,9 @@ public class MainMenu {
             scanner.nextLine();
 
             switch (option) {
-                case 1 -> System.out.println("Create Board - TODO");
-                case 2 -> System.out.println("Select Board - TODO");
-                case 3 -> System.out.println("Delete Board - TODO");
+                case 1 -> createBoard();
+                case 2 -> selectBoard();
+                case 3 -> deleteBoard();
                 case 4 -> System.exit(0);
                 default -> System.out.println("Invalid option.");
             }
@@ -84,6 +84,48 @@ public class MainMenu {
         e.printStackTrace();
     }
 }
+
+    private void selectBoard() {
+    try (var connection = ConnectionConfig.getConnection()) {
+        var boardDao = new BoardDAO(connection);
+        var columnDao = new BoardColumnDao(connection);
+
+        var boards = boardDao.findAll();
+        if (boards.isEmpty()) {
+            System.out.println("No boards available. Create one first.");
+            return;
+        }
+
+        System.out.println("Available Boards:");
+        for (int i = 0; i < boards.size(); i++) {
+            System.out.printf("%d - %s (ID: %d)%n", i + 1, boards.get(i).getName(), boards.get(i).getId());
+        }
+
+        System.out.println("Select a board by number:");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        if (choice < 1 || choice > boards.size()) {
+            System.out.println("Invalid selection.");
+            return;
+        }
+
+        var selectedBoard = boards.get(choice - 1);
+        System.out.printf("Selected board: %s%n", selectedBoard.getName());
+
+        // Optional: fetch columns
+        var columns = columnDao.findByBoardId(selectedBoard.getId());
+        System.out.println("Columns:");
+        for (var col : columns) {
+            System.out.printf(" - %s (%s)%n", col.getName(), col.getKind());
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Error selecting board: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
 
 private void deleteBoard() {
     System.out.println("Enter the ID of the Board you'd like to delete:");

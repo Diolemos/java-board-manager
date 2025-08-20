@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import boardManager.persistence.config.ConnectionConfig;
 import boardManager.persistence.migration.MigrationStrategy;
+import boardManager.ui.MainMenu;
 
 public class App {
   
@@ -13,5 +14,6 @@ public class App {
         try(var connection = ConnectionConfig.getConnection()){
             new MigrationStrategy(connection).executeMigration();
         }
+        new MainMenu().execute();
     }
 }
