@@ -3,9 +3,11 @@ package boardManager.persistence.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import lombok.RequiredArgsConstructor;
 import boardManager.persistence.entity.BoardEntity;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class BoardDAO {
@@ -33,4 +35,19 @@ public class BoardDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+
+    public List<BoardEntity> findAll() throws SQLException {
+    List<BoardEntity> boards = new ArrayList<>();
+    String sql = "SELECT id, name FROM BOARDS ORDER BY id";
+    try (var stmt = connection.prepareStatement(sql);
+         var rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            var board = new BoardEntity();
+            board.setId(rs.getLong("id"));
+            board.setName(rs.getString("name"));
+            boards.add(board);
+        }
+    }
+    return boards;
+}
 }
