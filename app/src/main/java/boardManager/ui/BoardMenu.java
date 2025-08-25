@@ -1,7 +1,10 @@
 package boardManager.ui;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -66,7 +69,7 @@ System.out.printf("  [%d] %s %s%n",
     task.getId(), 
     task.getTitle(), 
     task.getDueDate() != null ? " - Due: " + task.getDueDate() : "  "
-);;                }
+);                }
             }
         } catch (SQLException e) {
             System.out.println("Error listing columns & tasks: " + e.getMessage());
@@ -78,45 +81,69 @@ System.out.printf("  [%d] %s %s%n",
     private void deleteColumn() { /* keep existing implementation */ }
 
     // -------------------- Task Operations --------------------
-    private void addTask() {
-        try (var connection = ConnectionConfig.getConnection()) {
-            var columnDao = new BoardColumnDao(connection);
-            var taskDao = new TaskDAO(connection);
+private void addTask() {
+    try (var connection = ConnectionConfig.getConnection()) {
+        var columnDao = new BoardColumnDao(connection);
+        var taskDao = new TaskDAO(connection);
 
-            List<BoardColumnEntity> columns = columnDao.findByBoardId(board.getId());
-            System.out.println("Select column for the new task:");
-            for (int i = 0; i < columns.size(); i++) {
-                System.out.printf("%d - %s%n", i + 1, columns.get(i).getName());
-            }
-            int choice = scanner.nextInt();
-            scanner.nextLine();
-
-            if (choice < 1 || choice > columns.size()) {
-                System.out.println("Invalid column selection.");
-                return;
-            }
-
-            BoardColumnEntity selectedColumn = columns.get(choice - 1);
-
-            TaskEntity task = new TaskEntity();
-            task.setColumn(selectedColumn);
-
-            System.out.println("Task title:");
-            task.setTitle(scanner.nextLine());
-
-            System.out.println("Task description:");
-            task.setDescription(scanner.nextLine());
-
-            task.setCreatedAt(LocalDateTime.now());
-
-            taskDao.insert(task);
-            connection.commit();
-            System.out.println("Task added successfully.");
-
-        } catch (SQLException e) {
-            System.out.println("Error adding task: " + e.getMessage());
+        List<BoardColumnEntity> columns = columnDao.findByBoardId(board.getId());
+        System.out.println("Select column for the new task:");
+        for (int i = 0; i < columns.size(); i++) {
+            System.out.printf("%d - %s%n", i + 1, columns.get(i).getName());
         }
+
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+        if (choice < 1 || choice > columns.size()) {
+            System.out.println("Invalid column selection.");
+            return;
+        }
+        BoardColumnEntity selectedColumn = columns.get(choice - 1);
+
+        TaskEntity task = new TaskEntity();
+        task.setColumn(selectedColumn);
+
+        // Title
+        System.out.println("Task title:");
+        String title = scanner.nextLine().trim();
+        if (title.isEmpty()) {
+            System.out.println("Task title cannot be empty.");
+            return;
+        }
+        task.setTitle(title);
+
+        // Description
+        System.out.println("Task description:");
+        task.setDescription(scanner.nextLine().trim());
+
+        // Due date (optional, yyyy-MM-dd)
+        System.out.println("Task due date (yyyy-MM-dd) or leave empty for none:");
+        String dueDateInput = scanner.nextLine().trim();
+        if (!dueDateInput.isEmpty()) {
+            try {
+                var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                var dueDate = LocalDate.parse(dueDateInput, formatter).atTime(23, 59);
+                if (dueDate.isBefore(LocalDateTime.now())) {
+                    System.out.println("Due date cannot be in the past. Task will have no due date.");
+                } else {
+                    task.setDueDate(dueDate);
+                }
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Task will have no due date.");
+            }
+        }
+
+        task.setCreatedAt(LocalDateTime.now());
+        taskDao.insert(task);
+        connection.commit();
+
+        System.out.println("Task added successfully.");
+    } catch (SQLException e) {
+        System.out.println("Error adding task: " + e.getMessage());
+        e.printStackTrace();
     }
+}
+
 
     private void moveTask() {
         System.out.println("Move Task - TODO");
