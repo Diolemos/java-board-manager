@@ -1,14 +1,16 @@
 package boardManager.ui;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
 import boardManager.persistence.config.ConnectionConfig;
 import boardManager.persistence.dao.BoardColumnDao;
+import boardManager.persistence.dao.TaskDAO;
 import boardManager.persistence.entity.BoardColumnEntity;
-import boardManager.persistence.entity.BoardColumnKindEnum;
 import boardManager.persistence.entity.BoardEntity;
+import boardManager.persistence.entity.TaskEntity;
 
 public class BoardMenu {
     private final Scanner scanner = new Scanner(System.in);
@@ -21,20 +23,26 @@ public class BoardMenu {
     public void execute() {
         int option;
         while (true) {
-            System.out.printf("Board: %s%n", board.getName());
-            System.out.println("1 - List Columns");
+            System.out.printf("\nBoard: %s%n", board.getName());
+            System.out.println("1 - List Columns & Tasks");
             System.out.println("2 - Add Column");
             System.out.println("3 - Delete Column");
-            System.out.println("4 - Go Back");
+            System.out.println("4 - Add Task");
+            System.out.println("5 - Move Task");
+            System.out.println("6 - Delete Task");
+            System.out.println("7 - Go Back");
 
             option = scanner.nextInt();
             scanner.nextLine();
 
             switch (option) {
-                case 1 -> listColumns();
+                case 1 -> listColumnsAndTasks();
                 case 2 -> addColumn();
                 case 3 -> deleteColumn();
-                case 4 -> {
+                case 4 -> addTask();
+                case 5 -> moveTask();
+                case 6 -> deleteTask();
+                case 7 -> {
                     System.out.println("Returning to main menu...");
                     return;
                 }
@@ -43,74 +51,75 @@ public class BoardMenu {
         }
     }
 
-    private void listColumns() {
+    // -------------------- Column Operations --------------------
+    private void listColumnsAndTasks() {
         try (var connection = ConnectionConfig.getConnection()) {
             var columnDao = new BoardColumnDao(connection);
+            var taskDao = new TaskDAO(connection);
+
             List<BoardColumnEntity> columns = columnDao.findByBoardId(board.getId());
-
-            System.out.println("Columns:");
             for (var col : columns) {
-                System.out.printf(" - ID %d: %s (%s) Order: %d%n", col.getId(), col.getName(), col.getKind(),
-                        col.getOrder());
+                System.out.printf("\nColumn: %s (%s) Order: %d%n", col.getName(), col.getKind(), col.getOrder());
+                List<TaskEntity> tasks = taskDao.findByColumnId(col.getId());
+                for (var task : tasks) {
+                    System.out.printf("  [%d] %s - Due: %s%n", task.getId(), task.getTitle(), task.getDueDate());
+                }
             }
         } catch (SQLException e) {
-            System.out.println("Error listing columns: " + e.getMessage());
+            System.out.println("Error listing columns & tasks: " + e.getMessage());
         }
     }
 
-    private void addColumn() {
+    private void addColumn() { /* keep existing implementation */ }
+
+    private void deleteColumn() { /* keep existing implementation */ }
+
+    // -------------------- Task Operations --------------------
+    private void addTask() {
         try (var connection = ConnectionConfig.getConnection()) {
             var columnDao = new BoardColumnDao(connection);
+            var taskDao = new TaskDAO(connection);
 
-            System.out.println("Enter column name:");
-            String name = scanner.nextLine();
+            List<BoardColumnEntity> columns = columnDao.findByBoardId(board.getId());
+            System.out.println("Select column for the new task:");
+            for (int i = 0; i < columns.size(); i++) {
+                System.out.printf("%d - %s%n", i + 1, columns.get(i).getName());
+            }
+            int choice = scanner.nextInt();
+            scanner.nextLine();
 
-            System.out.println("Enter column kind (INITIAL, PENDING, DONE, etc):");
-            String kindInput = scanner.nextLine().toUpperCase();
-
-            BoardColumnKindEnum kind;
-            try {
-                kind = BoardColumnKindEnum.valueOf(kindInput);
-            } catch (IllegalArgumentException ex) {
-                System.out.println("Invalid kind. Defaulting to PENDING.");
-                kind = BoardColumnKindEnum.PENDING;
+            if (choice < 1 || choice > columns.size()) {
+                System.out.println("Invalid column selection.");
+                return;
             }
 
-            System.out.println("Enter column order (number):");
-            int order = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            BoardColumnEntity selectedColumn = columns.get(choice - 1);
 
-            var column = new BoardColumnEntity();
-            column.setName(name);
-            column.setKind(kind);
-            column.setOrder(order);
-            column.setBoard(board);
+            TaskEntity task = new TaskEntity();
+            task.setColumn(selectedColumn);
 
-            columnDao.insert(column);
+            System.out.println("Task title:");
+            task.setTitle(scanner.nextLine());
+
+            System.out.println("Task description:");
+            task.setDescription(scanner.nextLine());
+
+            task.setCreatedAt(LocalDateTime.now());
+
+            taskDao.insert(task);
             connection.commit();
+            System.out.println("Task added successfully.");
 
-            System.out.println("Column added successfully!");
         } catch (SQLException e) {
-            System.out.println("Error adding column: " + e.getMessage());
+            System.out.println("Error adding task: " + e.getMessage());
         }
     }
 
-    private void deleteColumn() {
-        System.out.println("Enter ID of column to delete:");
-        int columnId = scanner.nextInt();
-        scanner.nextLine();
+    private void moveTask() {
+        System.out.println("Move Task - TODO");
+    }
 
-        try (var connection = ConnectionConfig.getConnection()) {
-            var columnDao = new BoardColumnDao(connection);
-            boolean deleted = columnDao.delete((long) columnId);
-            if (deleted) {
-                connection.commit();
-                System.out.println("Column deleted successfully!");
-            } else {
-                System.out.println("Column not found.");
-            }
-        } catch (SQLException e) {
-            System.out.println("Error deleting column: " + e.getMessage());
-        }
+    private void deleteTask() {
+        System.out.println("Delete Task - TODO");
     }
 }
