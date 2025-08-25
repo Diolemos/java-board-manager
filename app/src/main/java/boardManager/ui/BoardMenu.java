@@ -62,8 +62,11 @@ public class BoardMenu {
                 System.out.printf("\nColumn: %s (%s) Order: %d%n", col.getName(), col.getKind(), col.getOrder());
                 List<TaskEntity> tasks = taskDao.findByColumnId(col.getId());
                 for (var task : tasks) {
-                    System.out.printf("  [%d] %s - Due: %s%n", task.getId(), task.getTitle(), task.getDueDate());
-                }
+System.out.printf("  [%d] %s %s%n", 
+    task.getId(), 
+    task.getTitle(), 
+    task.getDueDate() != null ? " - Due: " + task.getDueDate() : "  "
+);;                }
             }
         } catch (SQLException e) {
             System.out.println("Error listing columns & tasks: " + e.getMessage());
