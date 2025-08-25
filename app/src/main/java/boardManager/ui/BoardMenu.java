@@ -55,26 +55,30 @@ public class BoardMenu {
     }
 
     // -------------------- Column Operations --------------------
-    private void listColumnsAndTasks() {
-        try (var connection = ConnectionConfig.getConnection()) {
-            var columnDao = new BoardColumnDao(connection);
-            var taskDao = new TaskDAO(connection);
+private void listColumnsAndTasks() {
+    try (var connection = ConnectionConfig.getConnection()) {
+        var columnDao = new BoardColumnDao(connection);
+        var taskDao = new TaskDAO(connection);
 
-            List<BoardColumnEntity> columns = columnDao.findByBoardId(board.getId());
-            for (var col : columns) {
-                System.out.printf("\nColumn: %s (%s) Order: %d%n", col.getName(), col.getKind(), col.getOrder());
-                List<TaskEntity> tasks = taskDao.findByColumnId(col.getId());
-                for (var task : tasks) {
-System.out.printf("  [%d] %s %s%n", 
-    task.getId(), 
-    task.getTitle(), 
-    task.getDueDate() != null ? " - Due: " + task.getDueDate() : "  "
-);                }
+        List<BoardColumnEntity> columns = columnDao.findByBoardId(board.getId());
+        for (var col : columns) {
+            System.out.printf("\nColumn: %s (%s) Order: %d%n", col.getName(), col.getKind(), col.getOrder());
+            List<TaskEntity> tasks = taskDao.findByColumnId(col.getId());
+            for (var task : tasks) {
+                String due = "";
+                if (task.getDueDate() != null) {
+                    due = task.getDueDate().isBefore(LocalDateTime.now())
+                        ? " - Due: " + task.getDueDate() + " (Overdue!)"
+                        : " - Due: " + task.getDueDate();
+                }
+                System.out.printf("  [%d] %s%s%n", task.getId(), task.getTitle(), due);
             }
-        } catch (SQLException e) {
-            System.out.println("Error listing columns & tasks: " + e.getMessage());
         }
+    } catch (SQLException e) {
+        System.out.println("Error listing columns & tasks: " + e.getMessage());
     }
+}
+
 
     private void addColumn() { /* keep existing implementation */ }
 
